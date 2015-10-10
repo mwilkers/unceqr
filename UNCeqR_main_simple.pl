@@ -21,7 +21,7 @@ print STDERR "#starting UNCeqR_proc\n";
 
 #convert test.csv to VCF file
 my $pv = 0.001;
-my $rcmd = "perl -I$localPath $localPath/UNCeqR_2vcf.pl $resultsDir/unceqr_proc.all.csv $pv >& $resultsDir/log.vcf";
+my $rcmd = "perl -I$localPath $localPath/UNCeqR_2vcf.pl $resultsDir/unceqr_proc.all.csv $pv &> $resultsDir/log.vcf";
 print `$rcmd`;
 
 
