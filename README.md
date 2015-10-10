@@ -115,7 +115,7 @@ seq2	789	.	G	A	.	.	.
 
 ### Options
 |Parameter|Description|Required (R), Optional (O)|Default|
-|---------|-----------|
+|---------|-----------|--------------------------|-------|
 |*Options realted to input data*|
 |tumorRNA|String, path to RNA BAM file|O|blank|
 |tumorRNAchr|String, tumor RNA has ‘chr’ prefix to chromosome names “Y” else “N”|Req if above defined|Y|
