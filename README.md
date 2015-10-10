@@ -168,7 +168,7 @@ This table describes the columns of unceqr_proc.all.csv.
 
 
 |Variable|Description|Example|
-|----------------------------|
+|--------|-----------|-------|
 |chr|chromosome label|1|
 |pos|genomic position (1-based)|1233|
 |universal|allele from reference assembly sequence|A|
