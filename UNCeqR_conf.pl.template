@@ -1,0 +1,232 @@
+use Getopt::Long qw(GetOptionsFromArray);
+Getopt::Long::Configure("pass_through");
+my @ARGV2 = @ARGV;
+
+my $version = "v0.2";
+
+$header = <<END;
+#UNCeqr (c) 2011-2015 Matthew D. Wilkerson.
+END
+
+
+@hisArgv = @ARGV;
+GetOptionsFromArray(	
+			\@hisArgv,
+			'mode=s' => \$mode
+			);
+
+
+
+	#GLOBAL VARIABLES
+	#arg with no initial value
+	($rnaf,$tdnaf,$ndnaf,$preMinTumorCov,$startChr,$endChr,$maf,$sampId,$tumorLoose,$filterTumor,$testReg,$regionRestrict,$minTMapQ,$minTBaseQ,$maxNM,$maxIH,$trimEnd,$flagFilter,$st,$flagStrike,$minInNormFrac,$filterScript,$maxDepth,$mainProc,$resultsDir,$genomeFasta,$dense,$fastaWchr,$fastaWoChr,$tdnafChr,$ndnafChr,$rnafChr,$snpFile, $maxHomopolymer, $normalLoose,$mafEnd,$indelShadow,$verboseOut,$R,$Rscript,$R_LIBS_USER,$perlLib,	$normIndelShadowFrac,$trainNum,$medStart) = (("") x 200);
+	#mode is passed
+
+	#args with default value
+	$preMinNormCov=5;
+	$preMinTumorCov=5;
+	$minInNormFrac=0.02;
+
+	$maxNM=2;
+	$maxIH=1;
+	$minTBaseQ=20;
+	$minTMapQ=20;
+	$trimEnd=2;
+	$maxDepth=10000;
+	$maxHomopolymer=4;
+	$normalLoose = "Y";
+	$flagFilter=1; 
+	$indelShadow=101;
+	$normIndelShadowFrac=0.1;
+	$verboseOut=0;
+
+	$tdnafChr=$ndnafChr=$rnafChr="Y";
+	$tdnaf = $ndnaf = $rnaf = "blank";
+
+	$dnaOnly=0;
+	$rnaOnly=0;
+
+	$minNormCnt=5;
+	$maxNormPlural=100;
+	$minDnaTumorCnt=5;
+	$maxDnaBias=0.01;
+	$maxDnaStruckProp=0.75;
+	$minRnaTumorCnt=5;
+	$maxRnaBias=0.01;
+	$maxRnaStruckProp=0.75;
+	$trainNum=50000;
+	$medStart = 1;
+	
+	$maxDnaTumorPluralProp=0.75;
+	$maxRnaTumorPluralProp=0.75;
+
+	$dense="Y";
+
+        $annFlag=0;
+	$pvCut = 0.001;	
+	$regionRestrict="N";
+
+	$snpFile = -1;
+
+
+
+  $localPath = "[FULL PATH]/UNCeqR_vXXX";
+  $st="[FULL PATH]/samtools.1.18/samtools";
+  $R="[FULL PATH]/bin/R";
+  $Rscript="[FULL PATH]/Rscript";
+  $R_LIBS_USER="[FULL PATH]/x86_64-unknown-linux-gnu-library/2.X.X/";
+  $perlLib = "[FULL PATH]/site_perl/5.8.8/"; 
+
+
+if($mode eq "denovo"){
+
+	$regionRestrict="Y";
+	$flagFilter=5;
+	$normalLoose="Y";
+	$dense="Y";
+	$maxDepth=10000; 
+	$dnaOnly=0;
+	$rnaOnly=0;
+	$trainNum=50000; 
+	$maxDnaTumorPluralProp=0.75;
+	$maxRnaTumorPluralProp=0.75; 
+	$maxRnaStruckProp=0.75;
+	$maxDnaStruckProp=0.75;
+	$maxRnaBias=0.01;
+	$maxDnaBias=0.01;
+	$indelShadow=101;
+	$maxNormPlural=10;
+	$minInNormFrac=0.02;
+	$trimEnd=2; 
+	$minTMapQ=20;
+	$minTBaseQ=20;
+	$maxNM=2;
+	$maxIH=1;
+	$minNormCnt=10;
+	$preMinNormCov=10;
+	$preMinTumorCov=5;
+	$minDnaTumorCnt=5;
+	$minRnaTumorCnt=5;
+	$maxHomopolymer=4;
+	$verboseOut=0;
+	$annFlag=1;
+	$pvCut = 0.001;	
+	$medStart = 1;
+
+}elsif($mode eq "interrogate"){
+	#all data quality filtering is off
+	#min normal depth 0
+	#min tumor depth 1 
+
+	$regionRestrict="N";
+	$flagFilter=0;
+	$normalLoose="Y";
+	$dense="Y";
+	$maxDepth=10000; 
+	$dnaOnly=0;
+	$rnaOnly=0;
+	$trainNum=100; 
+	$maxDnaTumorPluralProp=0;
+	$maxRnaTumorPluralProp=0; 
+	$maxRnaStruckProp=2;
+	$maxDnaStruckProp=2;
+	$maxRnaBias=0;
+	$maxDnaBias=0;
+	$indelShadow=0;
+	$maxNormPlural=10;
+	$minInNormFrac=2;  #should be 2 for ignore normal specimen; #take all alleles - 0
+	$trimEnd=0; 
+	$minTMapQ=0;
+	$minTBaseQ=0;
+	$maxNM=100000;
+	$maxIH=100000;
+	$minNormCnt=0;
+	$preMinNormCov=0;
+	$preMinTumorCov=1;
+	$minDnaTumorCnt=1;
+	$minRnaTumorCnt=1;
+	$maxHomopolymer=100;
+	$verboseOut=0;
+	$annFlag=1;
+	$pvCut = 1; #only print variants in test.csv; not matching reference.
+	$medStart = 0;
+
+}else{
+  die "mode is undefined=$mode\n";
+}
+
+
+
+###
+#get command line arguments
+###
+	GetOptionsFromArray(	
+			\@ARGV2,
+			#DATA
+			'tumorRNA=s' => \$rnaf,
+			'tumorDNA=s' => \$tdnaf,
+			'normalDNA=s' => \$ndnaf,
+			'normalDNAchr=s' => \$ndnafChr,
+			'tumorRNAchr=s' => \$rnafChr,
+			'tumorDNAchr=s' => \$tdnafChr,
+			'fastaWchr:s' => \$fastaWchr,
+			'fastaWoChr:s' => \$fastaWoChr,
+			'resultsDir:s' => \$resultsDir,
+			'regionsToQuery=s' =>\$posf, #this has to be sorted by chr,pos.  CHR order should be the same as index file and SNP files. must end with a comma
+			'dense:s' => \$dense,
+			'mainProc:s' => \$mainProc,
+			'verboseOut:i' => \$verboseOut,
+			'snpFile:s' => \$snpFile,  #this has to be sorted by chr,pos.  CHR order should be the same as index file and SNP files.
+			'dnaOnly:i' => \$dnaOnly, 
+			'rnaOnly:i' => \$rnaOnly, 
+			'mode:s' => \$mode, 
+
+			#alignment and base filtering
+			'trimEnd:i' => \$trimEnd,
+			'minTMapQ:i' => \$minTMapQ,
+			'minTBaseQ:i' => \$minTBaseQ,
+			'flagFilter:s' => \$flagFilter, 
+			'maxIH:i' => \$maxIH,
+			'maxNM:i' => \$maxNM, #maximum allowed number of mismatches
+			'maxDepth:s' => \$maxDepth,
+			'normalLoose:s' => \$normalLoose, #this refers to alignment criteria
+			'maxHomopolymer:i' => \$maxHomopolymer,
+                        'indelShadow:i' => \$indelShadow,
+			'normIndelFrac:f' => \$normIndelFrac,
+			'medStart:i' => \$medStart,
+
+			#Genomic position
+			'preMinNormCov=i' => \$preMinNormCov,
+			'preMinTumorCov=i' => \$preMinTumorCov,
+			'minInNormFrac=f' => \$minInNormFrac,
+			'regionRestrict:s' => \$regionRestrict,
+
+			#Usable data
+			'minNormCnt:i' => \$minNormCnt,
+			'maxNormPlural:i' => \$maxNormPlural,
+			'minDnaTumorCnt:i' => \$minDnaTumorCnt,
+			'maxDnaBias:f' => \$maxDnaBias,
+			'maxDnaStruckProp:f' => \$maxDnaStruckProp,
+			'minRnaTumorCnt:i' => \$minRnaTumorCnt,
+			'maxRnaBias:f' => \$maxRnaBias,
+			'maxRnaStruckProp:f' => \$maxRnaStruckProp,
+			'trainNum:i' => \$trainNum,
+			'maxDnaTumorPluralProp:f' => \$maxDnaTumorPluralProp,
+			'maxRnaTumorPluralProp:f' => \$maxRnaTumorPluralProp,
+
+			#prior mutation file specific (interrogation mode)
+			'priorMutFile=s' => \$maf,
+			'sampleId=s' => \$sampId,
+			'laneFile=s' => \$laneFile,
+			'mafEnd=s' => \$mafEnd,
+ 			'annFlag=s' => \$annFlag
+
+			);
+
+#prior mut file, then dense is N, regions to query off
+
+
+
+
+
+TRUE;
