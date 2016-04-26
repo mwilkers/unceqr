@@ -71,11 +71,11 @@ GetOptionsFromArray(
 
 
   $localPath = "[FULL PATH]/UNCeqR_vXXX";
-  $st="[FULL PATH]/samtools.1.18/samtools";
+  $st="$localPath/samtools-0.1.18_unceqr/samtools";
   $R="[FULL PATH]/bin/R";
   $Rscript="[FULL PATH]/Rscript";
-  $R_LIBS_USER="[FULL PATH]/x86_64-unknown-linux-gnu-library/2.X.X/";
-  $perlLib = "[FULL PATH]/site_perl/5.8.8/"; 
+  $R_LIBS_USER="";#[FULL PATH]/x86_64-unknown-linux-gnu-library/3.X.X/;
+  $perlLib = "";#[FULL PATH]/site_perl/5.8.8/; 
 
 
 if($mode eq "denovo"){

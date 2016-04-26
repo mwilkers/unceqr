@@ -1,4 +1,4 @@
-library(multicore)
+library(parallel)
 library(VGAM)
 
 #description:
