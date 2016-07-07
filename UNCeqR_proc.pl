@@ -338,7 +338,7 @@ sub printOut{
 
 sub fitDist{
   #fit
-  my $cmd = "$Rscript $localPath/UNCeqR_fit.r $resultsDir/unceqr_proc.all.csv";
+  my $cmd = "$Rscript $localPath/UNCeqR_fit.r $resultsDir/unceqr_proc.all.csv $dnaOnly";
   print STDERR "$cmd\n";
   print STDERR `$cmd 2>&1`;
   #exec("$cmd");

@@ -9,6 +9,7 @@ print(args)
 startInd=6
 
 file=args[startInd]
+dnaOnly=args[startInd+1]
 
 pbetabin.ab=pbetabinom.ab
 
@@ -67,6 +68,9 @@ for(i in 1:4){
 	print(as.character(b_d))
 
 #RNA
+a_r=NA
+b_r=NA
+if(dnaOnly != "1"){
 	ind=which(d[,6]==1)
 	ks=d[ind,4]
 	ns=apply(d[ind,3:4],1,sum,na.rm=T)
@@ -83,7 +87,7 @@ for(i in 1:4){
 	print(op)
 	print(as.character(a_r))
 	print(as.character(b_r))
-
+}
 
 m=rbind(
 	c("dna",a_d,b_d),
