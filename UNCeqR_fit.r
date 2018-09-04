@@ -1,4 +1,3 @@
-library(parallel)
 library(VGAM)
 
 #description:

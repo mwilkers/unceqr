@@ -2,7 +2,7 @@ use Getopt::Long qw(GetOptionsFromArray);
 Getopt::Long::Configure("pass_through");
 my @ARGV2 = @ARGV;
 
-my $version = "v0.2";
+my $version = "v0.2.1";
 
 $header = <<END;
 #UNCeqr (c) 2011-2015 Matthew D. Wilkerson.
@@ -110,7 +110,7 @@ if($mode eq "denovo"){
 	$maxHomopolymer=4;
 	$verboseOut=0;
 	$annFlag=1;
-	$pvCut = 0.001;	
+	$pvCut = 0.25;	
 	$medStart = 1;
 
 }elsif($mode eq "interrogate"){
@@ -148,7 +148,7 @@ if($mode eq "denovo"){
 	$maxHomopolymer=100;
 	$verboseOut=0;
 	$annFlag=1;
-	$pvCut = 1; #only print variants in test.csv; not matching reference.
+	$pvCut = 100; #only print variants in test.csv; not matching reference.
 	$medStart = 0;
 
 }else{

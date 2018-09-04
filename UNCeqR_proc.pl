@@ -3,7 +3,7 @@ use Math::Cephes;
 
 use strict;
 
-use vars qw($rnaf $tdnaf $ndnaf $preMinTumorCov $posf $startChr $endChr $maf $sampId $tumorLoose $filterTumor $testReg $regionRestrict $minTMapQ $minTBaseQ $maxNM $maxIH $trimEnd $flagFilter $st $flagStrike $regChrLess $minInNormFrac $filterScript $maxDepth $header $mainProc @hisArgv $preMinNormCov $snpFile $dense $fastaWchr $fastaWoChr $tdnafChr $ndnafChr $rnafChr $minNormCnt $maxNormPlural $minDnaTumorCnt $maxDnaBias $maxDnaStruckProp $minRnaTumorCnt $maxRnaBias $maxRnaStruckProp $trainNum $resultsDir $maxDnaTumorPluralProp $maxRnaTumorPluralProp $dnaOnly $rnaOnly $maxHomopolymer $normalLoose $indelShadow $verboseOut $normIndelShadowFrac $mafEnd $medStart $mode $unceqrver $R $Rscript $R_LIBS_USER $localPath);
+use vars qw($rnaf $tdnaf $ndnaf $preMinTumorCov $posf $startChr $endChr $maf $sampId $tumorLoose $filterTumor $testReg $regionRestrict $minTMapQ $minTBaseQ $maxNM $maxIH $trimEnd $flagFilter $st $flagStrike $regChrLess $minInNormFrac $filterScript $maxDepth $header $mainProc @hisArgv $preMinNormCov $snpFile $dense $fastaWchr $fastaWoChr $tdnafChr $ndnafChr $rnafChr $minNormCnt $maxNormPlural $minDnaTumorCnt $maxDnaBias $maxDnaStruckProp $minRnaTumorCnt $maxRnaBias $maxRnaStruckProp $trainNum $resultsDir $maxDnaTumorPluralProp $maxRnaTumorPluralProp $dnaOnly $rnaOnly $maxHomopolymer $normalLoose $indelShadow $verboseOut $normIndelShadowFrac $mafEnd $medStart $mode $unceqrver $R $Rscript $R_LIBS_USER $localPath $pvCut);
 
 my @snpf;
 my $chri;
@@ -28,7 +28,7 @@ my %revCol;
 	$posDist = ($posDist > ($cacheLen-1)/2) ? ($cacheLen-1)/2 : $posDist;
 
 
-	my $normIndelFrac=1/10;
+	my $normIndelFrac=$normIndelShadowFrac; #1/10;
 	my @bam_nt16_rev_table = ("A","C","G","T","V","del","ins");
 	
 	my $Inf =10**10**10;
@@ -359,7 +359,8 @@ sub fitDist{
 }
 
 
-my $qBias = Math::CDF::qchisq(1-$maxDnaBias,1);
+my $qdBias = Math::CDF::qchisq(1-$maxDnaBias,1);
+my $qrBias = Math::CDF::qchisq(1-$maxRnaBias,1);
 
 sub chisq2x2 {
   #description: 2x2 chi-square with yates continuity correction.
@@ -478,7 +479,7 @@ sub evalDat{
 	if(       
 		$dnaPlural >= $maxDnaTumorPluralProp && #not excessive plurality of variant alleles
 		$cache->[0]->[$revCol{"DNA_medDist"}] >= $medStart && 
-		$dnaBias < $qBias &&
+		$dnaBias < $qrBias &&
 		($cache->[0]->[$revCol{"DNA_majNonRef"}] !~ /ins|del/ || ($cache->[0]->[$revCol{"DNA_varNeg"}] > 0 && $cache->[0]->[$revCol{"DNA_varPlus"}] > 0))
 	){
 	    	$dp = addP("dna",$dnaDepth,$cache->[0]->[$revCol{"DNA_maxVal"}]);
@@ -507,7 +508,7 @@ sub evalDat{
 	if(       
 		$rnaPlural >= $maxRnaTumorPluralProp && #not excessive plurality of variant alleles
 		$cache->[0]->[$revCol{"RNA_medDist"}] >= $medStart && 
-		$rnaBias < $qBias &&
+		$rnaBias < $qrBias &&
 		($cache->[0]->[$revCol{"RNA_majNonRef"}] !~ /ins|del/ || ($cache->[0]->[$revCol{"RNA_varNeg"}] > 0 && $cache->[0]->[$revCol{"RNA_varPlus"}] > 0))
 	){
 	    	$rp = addP("rna",$rnaDepth,$cache->[0]->[$revCol{"RNA_maxVal"}]);
@@ -803,8 +804,8 @@ sub printOutCache{
     $l .= ",".$cache[$curPos]->[4].",".$cache[$curPos]->[5].",".$cache[$curPos]->[6]; #add p-values.
 
     if( 
-	($cache[$curPos]->[4] ne "NA" &&  $cache[$curPos]->[4]  < 0.25) ||
-	($cache[$curPos]->[5] ne "NA" &&  $cache[$curPos]->[5]  < 0.25) ||
+	($cache[$curPos]->[4] ne "NA" &&  $cache[$curPos]->[4]  < $pvCut) ||
+	($cache[$curPos]->[5] ne "NA" &&  $cache[$curPos]->[5]  < $pvCut) ||
 	$verboseOut ){ #only print sites with above significance unless verbose out.
 	    printOut($l."\n");
     }
@@ -921,6 +922,7 @@ open(OF,">${resultsDir}/unceqr_proc.all.csv") || die "cannot access ${resultsDir
 	printOut("#medStart: $medStart\n",1);
 	printOut("#sampleId: $sampId\n",1);
 	printOut("#verboseOut: $verboseOut\n",1);
+	printOut("#pvCut: $pvCut\n",1);
 	printOut("#unceqrver: $unceqrver\n",1);
 	printOut("#mode: $mode\n",1);
 	printOut("#\n#\n",1);

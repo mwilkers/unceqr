@@ -130,7 +130,7 @@ seq2	789	.	G	A	.	.	.
 |dense|String, Query mode:“Y” – many close regions in bed file, “N” – few regions in bed file This affects the speed of UNCeqR.|Req||
 |snpFile|String, full path to text file that has predefined SNP or artifactual positions to be considered as germline allele. Format is comma delimited with these fields: chromosome, position, alleles to be considered as germline [ATCGinsdel].  This has no header line and must be on same genome assembly as BAMs, 1-based positions, and must be sorted same as regionsToQuery file.  See example snp file for reference|O|
 |mainProc|Number of separate UNCeqR processes per round|[not used]||
-|DnaOnly||||
+|DnaOnly|For running with only one tumor sequencing, the DNA arguments are used, not RNA, and dnaOnly should be set to 1.|Opt|0|
 |*Alignment and Base Filtering: these options affect segregate these bases and*|
 |trimEnd|integer, number of characters to trim from every read; these do not contribute to counts| Opt|0|
 |minTMapQ|Integer, minimum mapping quality value of read alignment, to be counted |O|0|
@@ -209,6 +209,7 @@ This table describes the columns of unceqr_proc.all.csv.
 * v0.1.14 – manuscript version
 * v0.1.14.2 – updated documentation, example data
 * v0.2 - at github, new license.
+* v0.2.1 - added separate filtering for maxRnaBias level; prior used maxDnaBias for both dna and rna.
 
 ##Quirks
 1. depending on the regionsToQuery (genomic locations queried for mutations) and other settings there can be more than one row per genomic locations, and users may want to account for, or collapse this in their analyses.
